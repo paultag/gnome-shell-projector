@@ -1,26 +1,22 @@
-// Drive menu extension
-const Clutter = imports.gi.Clutter;
-const Gio = imports.gi.Gio;
 const Lang = imports.lang;
 const St = imports.gi.St;
-const Shell = imports.gi.Shell;
 
 const Main = imports.ui.main;
-const Panel = imports.ui.panel;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
-const ShellMountOperation = imports.ui.shellMountOperation;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
+const API = Me.imports.api;
 
 
 const MountMenuItem = new Lang.Class({
     Name: 'DriveMenu.MountMenuItem',
     Extends: PopupMenu.PopupBaseMenuItem,
 
-    _init: function(name) {
+    _init: function(api, name) {
         this.parent();
+        this.api = api;
 
         this.label = new St.Label({text: name});
         this.actor.add(this.label, {expand: true});
@@ -42,11 +38,11 @@ const MountMenuItem = new Lang.Class({
         this.parent();
     },
 
-    _syncVisibility: function() {
-    },
-
     activate: function(event) {
         this.parent(event);
+        this.api.get(this.name, function(err, data) {
+            log(err);
+        });
     }
 });
 
@@ -56,6 +52,7 @@ const DriveMenu = new Lang.Class({
 
     _init: function() {
         this.parent(0.0, "Removable devices");
+        this.api = new API.API();
 
         let hbox = new St.BoxLayout({style_class: 'panel-status-menu-box'});
         let icon = new St.Icon({
@@ -66,15 +63,12 @@ const DriveMenu = new Lang.Class({
         hbox.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
         this.actor.add_child(hbox);
 
-        this._mounts = ["power"];
+        this._mounts = ["power/on", "power/off", "mute/on", "mute/off"];
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-        this.menu.addMenuItem(new MountMenuItem("foo"));
-        // this.menu.addAction("Open File", function(event) {
-        //     let appSystem = Shell.AppSystem.get_default();
-        //     let app = appSystem.lookup_app('org.gnome.Nautilus.desktop');
-        //     app.activate_full(-1, event.get_time());
-        // });
+        for (endpoint in this._mounts) {
+            this.menu.addMenuItem(new MountMenuItem(this.api, this._mounts[endpoint]));
+        }
         this.actor.show();
     },
 

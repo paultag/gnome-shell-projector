@@ -1,0 +1,8 @@
+{
+    "description": "Projector Status",
+    "name": "Projector",
+    "shell-version": [
+        "3.16.3"
+    ],
+    "uuid": "projector@anized.org"
+}

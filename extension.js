@@ -14,21 +14,21 @@ const MountMenuItem = new Lang.Class({
     Name: 'DriveMenu.MountMenuItem',
     Extends: PopupMenu.PopupBaseMenuItem,
 
-    _init: function(api, name) {
+    _init: function(api, action) {
         this.parent();
         this.api = api;
 
-        this.label = new St.Label({text: name});
+        this.label = new St.Label({text: action.name});
         this.actor.add(this.label, {expand: true});
         this.actor.label_actor = this.label;
 
-        this.name = name;
+        this.action = action
 
-        let ejectIcon = new St.Icon({
-            icon_name: 'media-eject-symbolic',
-            style_class: 'popup-menu-icon'
-        });
-        let ejectButton = new St.Button({child: ejectIcon});
+        // let ejectIcon = new St.Icon({
+        //     icon_name: 'video-display-symbolic',
+        //     style_class: 'popup-menu-icon'
+        // });
+        let ejectButton = new St.Button({/*child: ejectIcon*/});
         // ejectButton.connect('clicked', Lang.bind(this, this._eject));
         this.actor.add(ejectButton);
         this.actor.visible = true;
@@ -40,7 +40,7 @@ const MountMenuItem = new Lang.Class({
 
     activate: function(event) {
         this.parent(event);
-        this.api.get(this.name, function(err, data) {
+        this.api.get(this.action.path, function(err, data) {
             log(err);
         });
     }
@@ -56,14 +56,19 @@ const DriveMenu = new Lang.Class({
 
         let hbox = new St.BoxLayout({style_class: 'panel-status-menu-box'});
         let icon = new St.Icon({
-            icon_name: 'media-eject-symbolic',
+            icon_name: 'video-display-symbolic',
             style_class: 'system-status-icon'
         });
         hbox.add_child(icon);
         hbox.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
         this.actor.add_child(hbox);
 
-        this._mounts = ["power/on", "power/off", "mute/on", "mute/off"];
+        this._mounts = [
+            {"path": "power/on",  "name": "Power On"},
+            {"path": "power/off", "name": "Power Off"},
+            {"path": "mute/on",   "name": "Mute On"},
+            {"path": "mute/off",  "name": "Mute Off"},
+        ]
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         for (endpoint in this._mounts) {

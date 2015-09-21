@@ -63,16 +63,24 @@ const DriveMenu = new Lang.Class({
         hbox.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
         this.actor.add_child(hbox);
 
-        this._mounts = [
-            {"path": "power/on",  "name": "Power On"},
-            {"path": "power/off", "name": "Power Off"},
-            {"path": "mute/on",   "name": "Mute On"},
-            {"path": "mute/off",  "name": "Mute Off"},
-        ]
+        this._mounts = {
+            "power": [
+                {"path": "power/on",  "name": "Power On"},
+                {"path": "power/off", "name": "Power Off"},
+            ],
+            "mute": [
+                {"path": "mute/on",   "name": "Mute On"},
+                {"path": "mute/off",  "name": "Mute Off"},
+            ],
+        }
 
-        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-        for (endpoint in this._mounts) {
-            this.menu.addMenuItem(new MountMenuItem(this.api, this._mounts[endpoint]));
+        for (classification in this._mounts) {
+            value = this._mounts[classification];
+            this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+            for (index in value) {
+                entry = value[index];
+                this.menu.addMenuItem(new MountMenuItem(this.api, entry));
+            }
         }
         this.actor.show();
     },

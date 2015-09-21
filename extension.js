@@ -36,7 +36,7 @@ const MountMenuItem = new Lang.Class({
     activate: function(event) {
         this.parent(event);
         this.api.get(this.action.path, function(err, data) {
-            log(err);
+            /* Handle stuff here, I guess? */
         });
     }
 });
@@ -53,18 +53,19 @@ const APIToggle = new Lang.Class({
         this.onEndpoint = onEndpoint;
         this.offEndpoint = offEndpoint;
     },
+
     destroy: function() {
         this.parent();
     },
 
     updateStatus: function() {
         this.api.get("mute", function(err, data) {
-            global.log(data);
+            global.log("Checking mute");
             if (err !== null) {
                 return;
             }
             this.setToggleState(data == '1');
-        });
+        }.bind(this));
     },
 
     enable: function() {
@@ -77,7 +78,8 @@ const APIToggle = new Lang.Class({
     },
 
     _toggle: function(item, state) {
-        /*
+        global.log("Toggled");
+
         if (state) {
             endpoint = self.onEndpoint;
         } else {
@@ -86,7 +88,6 @@ const APIToggle = new Lang.Class({
 
         this.api.get(endpoint, function(err, data) {
         });
-        */
     },
 });
 
@@ -123,13 +124,12 @@ const DriveMenu = new Lang.Class({
         this.powerToggle = new APIToggle("Mute", this.api, "mute", "mute/on", "mute/off");
         this.powerToggle.updateStatus();
         this.menu.addMenuItem(this.powerToggle);
-        // this.powerToggle.connect("toggled", Lang.bind(this, _toggle));
 
-        for (classification in this._mounts) {
+        for (var classification in this._mounts) {
             value = this._mounts[classification];
             this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
             for (index in value) {
-                entry = value[index];
+                let entry = value[index];
                 this.menu.addMenuItem(new MountMenuItem(this.api, entry));
             }
         }
